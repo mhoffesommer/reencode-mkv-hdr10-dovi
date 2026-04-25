@@ -14,6 +14,7 @@ is_installed ffprobe "Use 'apt install ffmpeg' (or similar)"
 is_installed dovi_tool "See https://github.com/quietvoid/dovi_tool"
 is_installed hdr10plus_tool "See https://github.com/quietvoid/hdr10plus_tool"
 is_installed jq "Use 'apt install jq' (or similar)"
+is_installed mkvmerge "Use 'apt install mkvtoolnix' (or similar)"
 
 encode_single_file() {
     local src=$1
@@ -30,13 +31,11 @@ encode_single_file() {
         -print_format json "$src")
 
     # common stuff first
-    local args="-i \"${src}\""
+    local args=""
     args+=" -loglevel error -stats"     # reduce noise
     args+=" -map 0:v:0"                 # keep only first video stream
-    args+=" -map 0:a:m:language:eng?"   # keep only english/german audio
-    args+=" -map 0:a:m:language:ger?"
-    args+=" -map 0:s:m:language:eng?"   # keep only english/german subs
-    args+=" -map 0:s:m:language:ger?"
+    args+=" -map 0:a"                   # keep all audio
+    args+=" -map 0:a"                   # keep all subs
     args+=" -c:v libx265"
 
     # basic quality
@@ -46,7 +45,7 @@ encode_single_file() {
         if [[ "${src,,}" == *".hq."* ]]; then
             echo "- Non-4K HQ"
             args+=" -crf 22 -preset slow"
-        elif [[ "${src,,}" == *"remux."* ]]; then
+        elif [[ "${src,,}" == *"remux"* ]]; then
             echo "- Non-4K Remux"
             args+=" -crf 23 -preset medium"
         else
@@ -58,7 +57,7 @@ encode_single_file() {
         if [[ "${src,,}" == *".hq."* ]]; then
             echo "- 4K HQ"
             args+=" -crf 20 -preset slow"
-        elif [[ "${src,,}" == *"remux."* ]]; then
+        elif [[ "${src,,}" == *"remux"* ]]; then
             echo "- 4K Remux"
             args+=" -crf 22 -preset slow"
         else
@@ -76,6 +75,7 @@ encode_single_file() {
     local side_data_type=$(echo "$meta" | jq -r '.frames[0].side_data_list')
  
     local x265="aq-mode=3"
+    local dv_rpu=""
 
     # HDR, HLG or SDR?
     if [[ $color_transfer == "smpte2084" ]]; then
@@ -114,9 +114,8 @@ encode_single_file() {
             jq -r '.streams[0].side_data_list[]? | select(.side_data_type == "DOVI configuration record") | "\(.dv_profile).\(.dv_version)"')
         if [[ $dv_info ]]; then
             echo "- Dolby Vision"
-            local dv_rpu="${src// /_}.rpu"
+            dv_rpu="${src// /_}.rpu"
             [[ -f "$dv_rpu" ]] || dovi_tool -m 2 extract-rpu -i "$src" -o "$dv_rpu"
-            x265+=":dolby-vision=1:dolby-vision-profile=8.1:dovi-rpu=${dv_rpu}"
         fi
 
         # side_data=dv_profile:dv_level:dv_bl_signal_compatibility_id
@@ -148,11 +147,25 @@ encode_single_file() {
     args+=" -dn "                       # skip data streams
  
     # now run the conversion
-    ffmpeg $args "$dst"
+    if [[ -z "$dv_rpu" ]]; then
+        ffmpeg -i "$src" $args "$dst"
+    else
+        # Dolby Vision path...
+        local tmp="${dst%.*.tmp.mkv}"
+        ffmpeg -i "$src" $args "$tmp"
+
+        ffmpeg -i "$tmp" -c:v copy -bsf:v hevc_mp4toannexb "${tmp}.1.hevc"
+        dovi_tool inject-rpu "${tmp}.1.hevc" --rpu-in "$dv_rpu" -o "${tmp}.2.hevc"
+        mkvmerge -o "$dst" -D \( "$tmp" \) "${tmp}.2.hevc"
+
+        rm "${tmp}.1.hevc"
+        rm "${tmp}.2.hevc"
+        rm "${tmp}"
+        rm "${dv_rpu}"
+    fi
  
     # cleanup
     rm -f "$hdr10plus"
-    rm -f "$dv_rpu"
 }
 
 encode_folder() {

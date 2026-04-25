@@ -13,13 +13,14 @@ This bash script needs:
 - dovi_tool
 - hdr10plus_tool
 - jq
+- mkvmerge
 
 For files less than 4K:
 
 | Filename contains... | Quality level |
 | ==================== | ============= |
 | .hq.                 | slow, CRF22   |
-| remux.               | medium, CRF23 |
+| remux                | medium, CRF23 |
 |                      | fast, CRF23   |
 
 For 4K files:
@@ -27,7 +28,7 @@ For 4K files:
 | Filename contains... | Quality level |
 | ==================== | ============= |
 | .hq.                 | slow, CRF20   |
-| remux.               | slow, CRF22   |
+| remux                | slow, CRF22   |
 |                      | medium, CRF22 |
 
 Additionally if the filename contains ".grain." the libx265 grain tune parameter
