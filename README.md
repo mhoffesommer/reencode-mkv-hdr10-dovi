@@ -18,7 +18,7 @@ This bash script needs:
 For files less than 4K:
 
 | Filename contains... | Quality level |
-| ==================== | ============= |
+| -------------------- | ------------- |
 | .hq.                 | slow, CRF22   |
 | remux                | medium, CRF23 |
 |                      | fast, CRF23   |
@@ -26,7 +26,7 @@ For files less than 4K:
 For 4K files:
 
 | Filename contains... | Quality level |
-| ==================== | ============= |
+| -------------------- | ------------- |
 | .hq.                 | slow, CRF20   |
 | remux                | slow, CRF22   |
 |                      | medium, CRF22 |
