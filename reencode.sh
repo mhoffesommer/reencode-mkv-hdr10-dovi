@@ -20,6 +20,12 @@ encode_single_file() {
     local src=$1
     local extra=$2
 
+    # skip already re-encoded files
+    if [[ "$src" == *".rnc.mkv" ]]; then
+        return 0
+    fi
+
+    # don't re-create already existing re-encoded files
     local dst="${src%.*}.rnc.mkv"
     if [ -f "$dst" ]; then
         return 0
