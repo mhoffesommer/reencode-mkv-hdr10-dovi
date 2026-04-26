@@ -151,7 +151,7 @@ encode_single_file() {
         ffmpeg -i "$src" $args "$dst"
     else
         # Dolby Vision path...
-        local tmp="${dst%.*.tmp.mkv}"
+        local tmp="${dst%.*}.tmp.mkv"
         ffmpeg -i "$src" $args "$tmp"
 
         ffmpeg -i "$tmp" -c:v copy -bsf:v hevc_mp4toannexb "${tmp}.1.hevc"
