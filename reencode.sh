@@ -143,7 +143,7 @@ encode_single_file() {
     args+=" -x265-params \"${x265}\""
     args+=" -c:a copy -c:s copy"        # copy audio/subtitles
     args+=" -map_metadata 0"            # carry over global metadata
-    args+=" -metadata title=\"\""       # clear embedded title
+    args+=" -metadata title="           # clear embedded title
     args+=" -dn "                       # skip data streams
  
     # now run the conversion
