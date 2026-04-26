@@ -140,9 +140,20 @@ encode_single_file() {
     if [[ "${src,,}" == *".grain."* ]]; then
         echo "- Grain"
         x265+=":tune=grain"
-        args+=" -maxrate 25M -bufsize 50M"  # relaxed cap for grain
+
+        # relaxed encoding cap for grain
+        if (( $width < 3000 )); then
+            args+=" -maxrate 12M -bufsize 25M"
+        else
+            args+=" -maxrate 25M -bufsize 50M"
+        fi
     else
-        args+=" -maxrate 18M -bufsize 30M"  # cap encoding sizes
+        # cap encoding sizes
+        if (( $width < 3000 )); then
+            args+=" -maxrate 6M -bufsize 12M"  
+        else
+            args+=" -maxrate 18M -bufsize 30M"
+        fi
     fi
 
     # remaining arguments
