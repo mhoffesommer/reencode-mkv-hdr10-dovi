@@ -35,7 +35,7 @@ encode_single_file() {
     args+=" -loglevel error -stats"     # reduce noise
     args+=" -map 0:v:0"                 # keep only first video stream
     args+=" -map 0:a"                   # keep all audio
-    args+=" -map 0:s"                   # keep all subs
+    args+=" -map 0:s?"                  # keep all subs
     args+=" -c:v libx265"
 
     # basic quality
