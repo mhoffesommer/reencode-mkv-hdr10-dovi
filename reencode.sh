@@ -113,7 +113,11 @@ encode_single_file() {
             "G(\(.green_x | split("/")[0]),\(.green_y | split("/")[0]))B(\(.blue_x | split("/")[0]),\(.blue_y | split("/")[0]))R(\(.red_x | split("/")[0]),\(.red_y | split("/")[0]))WP(\(.white_point_x | split("/")[0]),\(.white_point_y | split("/")[0]))L(\(.max_luminance | split("/")[0]),\(.min_luminance | split("/")[0]))"')
         local max_cll=$(echo "$meta" | jq -r '.frames[0].side_data_list[] | select(.side_data_type=="Content light level metadata") | 
         "\(.max_content),\(.max_average)"')
-        x265+=":master-display=${master_display}:max-cll=${max_cll}"
+        if [[ -z "$master_display" ]] || [[ -z "$max_cll" ]]; then
+            echo "- mastering display and/or light metadata not found; using defaults"
+        else
+            x265+=":master-display=${master_display}:max-cll=${max_cll}"
+        fi
 
         # Dolby Vision?
         local dv_info=$(echo "$meta" | \
