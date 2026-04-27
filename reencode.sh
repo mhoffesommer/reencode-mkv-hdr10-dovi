@@ -115,6 +115,7 @@ encode_single_file() {
         "\(.max_content),\(.max_average)"')
         if [[ -z "$master_display" ]] || [[ -z "$max_cll" ]]; then
             echo "- mastering display and/or light metadata not found; using defaults"
+            x265+=":master-display=G(13250,34500)B(7500,3000)R(34000,16000)WP(15635,16450)L(10000000,1):max-cll=1000,400"
         else
             x265+=":master-display=${master_display}:max-cll=${max_cll}"
         fi
