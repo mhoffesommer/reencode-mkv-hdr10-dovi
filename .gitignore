@@ -1,5 +1,5 @@
 *.mkv
 *.mp4
 *.rpu
-*.hdr10plus
+*.json
 *.hevc

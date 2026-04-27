@@ -94,7 +94,7 @@ encode_single_file() {
             echo "- HDR10+"
 
             # extract dynamic metadata to make sure
-            hdr10plus="${src// /_}.hdr10plus"
+            hdr10plus="${src// /_}.json"
             if [[ -f "$hdr10plus" ]] || ffmpeg -i "$src" -c:v copy -bsf:v hevc_mp4toannexb -f hevc - 2>/dev/null | hdr10plus_tool extract -o "$hdr10plus" - >/dev/null 2>&1; then
                 # actually HDR10+
                 echo "- extracted dynamic metadata"
