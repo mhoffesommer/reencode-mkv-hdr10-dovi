@@ -80,7 +80,16 @@ encode_single_file() {
     local color_transfer=$(echo "$meta" | jq -r '.streams[0].color_transfer')
     local side_data_type=$(echo "$meta" | jq -r '.frames[0].side_data_list')
  
-    local x265="aq-mode=3"
+    local x265="aq-mode=3"              # fine grained, improve dark scenes
+    if [[ "${src,,}" == *".grain."* ]]; then
+        x265+=":aq-strength=0.8"        # avoid over-emphasizing grain
+    fi
+    x265+=":sao=0"                      # disable sample adaptive offset to keep image sharper
+    if (( $width >= 3000 )); then
+        x265+=":strong-intra-smoothing=0"   # prevent encoder from smearing gradients
+        x265+=":psy-rd=2.0"                 # okay for a bit more noise if keeping texture of image intact
+    fi
+
     local dv_rpu=""
 
     # HDR, HLG or SDR?
