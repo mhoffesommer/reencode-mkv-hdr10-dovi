@@ -95,7 +95,7 @@ encode_single_file() {
     # HDR, HLG or SDR?
     if [[ $color_transfer == "smpte2084" ]]; then
         # HDR10 etc
-        x265+=":hdr10=1:colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020"
+        x265+=":hdr10=1:hdr10_opt=1:colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc"
 
         local hdr10plus=""
         if [[ $side_data_type =~ 2094|HDR10\+ ]]; then
@@ -171,7 +171,7 @@ encode_single_file() {
     fi
 
     # remaining arguments
-    args+=" -x265-params \"${x265}\""
+    args+=" -x265-params ${x265}"
     args+=" -c:a copy -c:s copy"        # copy audio/subtitles
     args+=" -map_metadata 0"            # carry over global metadata
     args+=" -metadata title="           # clear embedded title
