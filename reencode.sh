@@ -166,7 +166,7 @@ encode_single_file() {
     else
         # cap encoding sizes
         if (( $width < 3000 )); then
-            x265+= ":vbv-maxrate=6000:vbv-bufsize=12000"  
+            x265+=":vbv-maxrate=6000:vbv-bufsize=12000"  
         else
             x265+=":vbv-maxrate=18000:vbv-bufsize=30000"
         fi
