@@ -75,12 +75,14 @@ encode_single_file() {
     # Other defaults
     args+=" -pix_fmt yuv420p10le"       # 10-bit encoding
     args+=" -max_muxing_queue_size 4096"
+    args+=" -default_mode infer_no_subs"
  
     # Color formats
     local color_transfer=$(echo "$meta" | jq -r '.streams[0].color_transfer')
     local side_data_type=$(echo "$meta" | jq -r '.frames[0].side_data_list')
  
-    local x265="aq-mode=3"              # fine grained, improve dark scenes
+    local x265="aq-mode=2"              # fine grained, improve dark scenes
+    x265+=":repeat-headers=1:strong-intra-smoothing=1:bframes=4:b-adapt=2:frame-threads=0"
     if [[ "${src,,}" == *".grain."* ]]; then
         x265+=":aq-strength=0.8"        # avoid over-emphasizing grain
     fi
@@ -157,16 +159,16 @@ encode_single_file() {
 
         # relaxed encoding cap for grain
         if (( $width < 3000 )); then
-            args+=" -maxrate 12M -bufsize 25M"
+            x265+=":vbv-maxrate=12000:vbv-bufsize=25000"
         else
-            args+=" -maxrate 25M -bufsize 50M"
+            x265+=":vbv-maxrate=25000:vbv-bufsize=50000"
         fi
     else
         # cap encoding sizes
         if (( $width < 3000 )); then
-            args+=" -maxrate 6M -bufsize 12M"  
+            x265+= ":vbv-maxrate=6000:vbv-bufsize=12000"  
         else
-            args+=" -maxrate 18M -bufsize 30M"
+            x265+=":vbv-maxrate=18000:vbv-bufsize=30000"
         fi
     fi
 
