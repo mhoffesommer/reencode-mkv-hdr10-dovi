@@ -95,13 +95,11 @@ encode_single_file() {
  
     if [[ "${src,,}" == *".grain."* ]]; then
         local x265="aq-mode=3"              # fine grained, improve dark scenes
-    elif
+        x265+=":aq-strength=0.8"            # avoid over-emphasizing grain
+    else
         local x265="aq-mode=2"              # auto-variance
     fi
     x265+=":repeat-headers=1:strong-intra-smoothing=1:bframes=4:b-adapt=2:frame-threads=0"
-    if [[ "${src,,}" == *".grain."* ]]; then
-        x265+=":aq-strength=0.8"        # avoid over-emphasizing grain
-    fi
     x265+=":sao=0"                      # disable sample adaptive offset to keep image sharper
     if (( $width >= 3000 )); then
         x265+=":strong-intra-smoothing=0"   # prevent encoder from smearing gradients
