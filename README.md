@@ -20,17 +20,20 @@ For files less than 4K:
 | Filename contains... | Quality level |
 | -------------------- | ------------- |
 | .hq.                 | slow, CRF22   |
-| remux                | medium, CRF23 |
-|                      | fast, CRF23   |
+| remux                | medium, CRF22 |
+|                      | faster, CRF22 |
 
 For 4K files:
 
 | Filename contains... | Quality level |
 | -------------------- | ------------- |
+| .grain. & .hq.       | slow, CRF20   |
+| .grain. & remux      | medium, CRF21 |
+| .grain.              | medium, CRF22 |
 | .hq.                 | slow, CRF20   |
 | remux                | slow, CRF22   |
 |                      | medium, CRF22 |
 
-Additionally if the filename contains ".grain." the libx265 grain tune parameter
-will be used.
+If the filename contains ".grain." the libx265 grain tune parameter will be used.
+
 Note: TS files will be deinterlaced using the yadif filter.

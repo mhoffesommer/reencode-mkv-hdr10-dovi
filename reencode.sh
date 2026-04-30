@@ -53,13 +53,25 @@ encode_single_file() {
             args+=" -crf 22 -preset slow"
         elif [[ "${src,,}" == *"remux"* ]]; then
             echo "- Non-4K Remux"
-            args+=" -crf 23 -preset medium"
+            args+=" -crf 22 -preset medium"
         else
             echo "- Non-4K"
-            args+=" -crf 23 -preset fast"
+            args+=" -crf 22 -preset faster"
+        fi
+    elif [[ "${src,,}" == *".grain."* ]]; then
+        # grainy 4K
+        if [[ "${src,,}" == *".hq."* ]]; then
+            echo "- 4K HQ (grain)"
+            args+=" -crf 20 -preset slow"
+        elif [[ "${src,,}" == *"remux"* ]]; then
+            echo "- 4K Remux (grain)"
+            args+=" -crf 21 -preset medium"
+        else
+            echo "- 4K (grain)"
+            args+=" -crf 22 -preset medium"
         fi
     else
-        # 4K
+        # non-grainy 4K
         if [[ "${src,,}" == *".hq."* ]]; then
             echo "- 4K HQ"
             args+=" -crf 20 -preset slow"
@@ -81,7 +93,11 @@ encode_single_file() {
     local color_transfer=$(echo "$meta" | jq -r '.streams[0].color_transfer')
     local side_data_type=$(echo "$meta" | jq -r '.frames[0].side_data_list')
  
-    local x265="aq-mode=2"              # fine grained, improve dark scenes
+    if [[ "${src,,}" == *".grain."* ]]; then
+        local x265="aq-mode=3"              # fine grained, improve dark scenes
+    elif
+        local x265="aq-mode=2"              # auto-variance
+    fi
     x265+=":repeat-headers=1:strong-intra-smoothing=1:bframes=4:b-adapt=2:frame-threads=0"
     if [[ "${src,,}" == *".grain."* ]]; then
         x265+=":aq-strength=0.8"        # avoid over-emphasizing grain
@@ -154,7 +170,6 @@ encode_single_file() {
 
     # 'grain' tune?
     if [[ "${src,,}" == *".grain."* ]]; then
-        echo "- Grain"
         x265+=":tune=grain"
 
         # relaxed encoding cap for grain
