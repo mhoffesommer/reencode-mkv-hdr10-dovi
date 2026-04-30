@@ -174,7 +174,17 @@ encode_single_file() {
 
     # remaining arguments
     args+=" -x265-params ${x265}"
-    args+=" -c:a copy -c:s copy"        # copy audio/subtitles
+    args+=" -c:a copy"                  # copy audio
+
+    # copy or convert subtitles
+    local codec=$(ffprobe -v error -select_streams s:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$src")
+    if [ "$codec" == "mov_text" ] || [ "$codec" == "pgs" ]; then
+        args+=" -c:s srt"               # convert mov_text/pgs to srt
+    else
+        args+=" -c:s copy"              # keep other subtitle formats as is
+    fi
+
+    # final arguments
     args+=" -map_metadata 0"            # carry over global metadata
     args+=" -metadata title="           # clear embedded title
     args+=" -dn "                       # skip data streams
