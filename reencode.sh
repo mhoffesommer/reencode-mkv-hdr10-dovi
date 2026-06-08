@@ -151,7 +151,7 @@ encode_single_file() {
         if [[ $dv_info ]]; then
             echo "- Dolby Vision"
             dv_rpu="${src// /_}.rpu"
-            [[ -f "$dv_rpu" ]] || dovi_tool -m 2 extract-rpu -i "$src" -o "$dv_rpu"
+            [[ -f "$dv_rpu" ]] || ffmpeg -i "$src" -c:v copy -bsf:v hevc_mp4toannexb -f hevc - | dovi_tool -m 2 extract-rpu - -o "$dv_rpu"
         fi
 
         # side_data=dv_profile:dv_level:dv_bl_signal_compatibility_id
