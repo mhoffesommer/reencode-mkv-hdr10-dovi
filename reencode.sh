@@ -35,13 +35,16 @@ encode_single_file() {
     local meta=$(ffprobe -v error -select_streams v:0 -show_frames -read_intervals "%+#1" \
         -show_entries "stream=width,height,color_transfer:stream_side_data=side_data_type:frame=side_data_list:stream_side_data_list" \
         -print_format json "$src")
+    local sub_codec=$(ffprobe -v error -select_streams s:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$src")
 
     # common stuff first
     local args=""
     args+=" -loglevel error -stats"     # reduce noise
     args+=" -map 0:v:0"                 # keep only first video stream
     args+=" -map 0:a"                   # keep all audio
-    args+=" -map 0:s?"                  # keep all subs
+    if [[ "$sub_codec" != "unknown" ]]; then
+        args+=" -map 0:s?"              # keep all subs except if 'unknown' codec
+    fi
     args+=" -c:v libx265"
 
     # basic quality
@@ -190,8 +193,7 @@ encode_single_file() {
     args+=" -c:a copy"                  # copy audio
 
     # copy or convert subtitles
-    local codec=$(ffprobe -v error -select_streams s:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$src")
-    if [ "$codec" == "mov_text" ] || [ "$codec" == "pgs" ]; then
+    if [ "$sub_codec" == "mov_text" ] || [ "$sub_codec" == "pgs" ]; then
         args+=" -c:s srt"               # convert mov_text/pgs to srt
     else
         args+=" -c:s copy"              # keep other subtitle formats as is
