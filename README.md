@@ -1,3 +1,17 @@
+migrated to https://git.hoffesommer.com/open/reencode-mkv-hdr10-dovi
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
 # reencode-mkv-hdr10-dovi
 Batch-reencodes a folder of video files to a given quality level based on filename; retains HDR10/HDR10+/DoVi. 
 
